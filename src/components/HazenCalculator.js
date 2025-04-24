@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from "recharts";
 import {
   exportResultsToCSV,
@@ -17,7 +12,7 @@ function HazenCalculator() {
   const [length, setLength] = useState("");
   const [diameter, setDiameter] = useState("");
   const [flow, setFlow] = useState("");
-  const [C, setC] = useState("120"); // Default C for steel
+  const [C, setC] = useState("120");
   const [result, setResult] = useState(null);
   const [chartData, setChartData] = useState([]);
 
@@ -32,7 +27,6 @@ function HazenCalculator() {
     const { hf } = calculateHazenWilliams(L, D, Q, coeff);
     setResult({ hf: hf.toFixed(3), L, D, Q, C: coeff });
 
-    // Generate chart data: vary flow from 0 to 2*Q
     const points = [];
     const maxQ = Q * 2;
     for (let q = 0.01; q <= maxQ; q += maxQ / 20) {
@@ -54,120 +48,134 @@ function HazenCalculator() {
   };
 
   return (
-    <div>
-      <h2>Hazen-Williams Calculator</h2>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          calculate();
-        }}
-        className="mb-4"
-      >
-        <div className="mb-3">
-          <label className="form-label">Pipe Length (m)</label>
-          <input
-            type="number"
-            className="form-control"
-            value={length}
-            onChange={(e) => setLength(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Pipe Diameter (m)</label>
-          <input
-            type="number"
-            className="form-control"
-            value={diameter}
-            onChange={(e) => setDiameter(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Flow Rate (m³/s)</label>
-          <input
-            type="number"
-            className="form-control"
-            value={flow}
-            onChange={(e) => setFlow(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Hazen-Williams C</label>
-          <select
-            className="form-select"
-            value={C}
-            onChange={(e) => setC(e.target.value)}
-          >
-            <option value="150">PVC - 150</option>
-            <option value="140">Copper - 140</option>
-            <option value="130">Iron - 130</option>
-            <option value="120">Steel - 120</option>
-            <option value="100">Old Pipe - 100</option>
-            <option value={C}>Custom: {C}</option>
-          </select>
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Calculate
-        </button>
-      </form>
+    <div className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-md-10 col-lg-8">
+          <div className="card shadow-lg border-0 rounded-lg">
+            <div className="card-body p-5">
+              <div className="text-center mb-4">
+                <h3 className="text-primary font-weight-bold mb-2">Hazen-Williams Calculator</h3>
+                <p className="text-muted">Calculate head loss in pipes based on the Hazen-Williams formula.</p>
+              </div>
 
-      {result && (
-        <div className="card mb-4">
-          <div className="card-body">
-            <h5 className="card-title">Result</h5>
-            <p>
-              <strong>Head Loss (h<sub>f</sub>):</strong> {result.hf} m
-            </p>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  calculate();
+                }}
+              >
+                <div className="form-group mb-3">
+                  <label className="font-weight-bold">Pipe Length (m)</label>
+                  <input
+                    type="number"
+                    className="form-control form-control-lg"
+                    value={length}
+                    onChange={(e) => setLength(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group mb-3">
+                  <label className="font-weight-bold">Pipe Diameter (m)</label>
+                  <input
+                    type="number"
+                    className="form-control form-control-lg"
+                    value={diameter}
+                    onChange={(e) => setDiameter(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group mb-3">
+                  <label className="font-weight-bold">Flow Rate (m³/s)</label>
+                  <input
+                    type="number"
+                    className="form-control form-control-lg"
+                    value={flow}
+                    onChange={(e) => setFlow(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group mb-4">
+                  <label className="font-weight-bold">Hazen-Williams C</label>
+                  <select
+                    className="form-control form-control-lg"
+                    value={C}
+                    onChange={(e) => setC(e.target.value)}
+                  >
+                    <option value="150">PVC - 150</option>
+                    <option value="140">Copper - 140</option>
+                    <option value="130">Iron - 130</option>
+                    <option value="120">Steel - 120</option>
+                    <option value="100">Old Pipe - 100</option>
+                    <option value={C}>Custom: {C}</option>
+                  </select>
+                </div>
+
+                <button type="submit" className="btn btn-primary btn-round btn-lg btn-block">
+                  Calculate
+                </button>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
 
-      {chartData.length > 0 && (
-        <div id="chart-hazen" className="mb-4">
-          <h5>Flow Rate vs Head Loss</h5>
-          <LineChart width={500} height={300} data={chartData}>
-            <CartesianGrid stroke="#ccc" />
-            <XAxis
-              dataKey="flow"
-              label={{
-                value: "Flow (m³/s)",
-                position: "insideBottomRight",
-                offset: -5,
-              }}
-            />
-            <YAxis
-              label={{
-                value: "Head Loss (m)",
-                angle: -90,
-                position: "insideLeft",
-              }}
-            />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="headLoss"
-              stroke="#28a745" // Bootstrap green
-              strokeWidth={2}
-            />
-          </LineChart>
-        </div>
-      )}
+          {result && (
+            <div className="card mt-5 shadow-sm">
+              <div className="card-body text-center">
+                <h5 className="text-success">Result</h5>
+                <p>
+                  <strong>Head Loss (h<sub>f</sub>):</strong> {result.hf} m
+                </p>
+              </div>
+            </div>
+          )}
 
-      {result && (
-        <div className="mb-4">
-          <button
-            onClick={handleExportPDF}
-            className="btn btn-secondary me-2"
-          >
-            Export PDF
-          </button>
-          <button onClick={handleExportCSV} className="btn btn-secondary">
-            Export CSV
-          </button>
+          {chartData.length > 0 && (
+            <div className="card mt-4 shadow-sm">
+              <div className="card-body">
+                <h5 className="text-center mb-4">Flow Rate vs Head Loss</h5>
+                <LineChart width={600} height={300} data={chartData}>
+                  <CartesianGrid stroke="#ccc" />
+                  <XAxis
+                    dataKey="flow"
+                    label={{
+                      value: "Flow (m³/s)",
+                      position: "insideBottomRight",
+                      offset: -5,
+                    }}
+                  />
+                  <YAxis
+                    label={{
+                      value: "Head Loss (m)",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="headLoss"
+                    stroke="#28a745"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </div>
+            </div>
+          )}
+
+          {result && (
+            <div className="mt-4 text-center">
+              <button onClick={handleExportPDF} className="btn btn-outline-primary me-3">
+                Export PDF
+              </button>
+              <button onClick={handleExportCSV} className="btn btn-outline-secondary">
+                Export CSV
+              </button>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

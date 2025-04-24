@@ -2,43 +2,37 @@ import { useState } from "react";
 import ManningChart from "./ManningChart";
 
 function ManningCalculator() {
-  // State for inputs
   const [shape, setShape] = useState("rectangular");
   const [width, setWidth] = useState("");
   const [depth, setDepth] = useState("");
   const [slope, setSlope] = useState("");
-  const [manningN, setManningN] = useState("0.013");  // default n, e.g., 0.013 for concrete
-  // State for outputs
+  const [manningN, setManningN] = useState("0.013");
   const [results, setResults] = useState(null);
-  // State for chart data
   const [chartData, setChartData] = useState([]);
 
   const calculateResults = () => {
-    console.log("calculateResults called");
-    console.log("calculateResults called");
     const b = parseFloat(width);
     const y = parseFloat(depth);
     const S = parseFloat(slope);
     const n = parseFloat(manningN);
-  
+
     if (!(b > 0 && y > 0 && S > 0 && n > 0)) {
       alert("Please enter valid positive numbers for all inputs.");
       return;
     }
-  
-    const A = b * y; 
-    const P = b + 2 * y; 
-    const R = A / P; 
-    const Q = (1 / n) * A * Math.pow(R, 2 / 3) * Math.sqrt(S); // Discharge
-  
+
+    const A = b * y;
+    const P = b + 2 * y;
+    const R = A / P;
+    const Q = (1 / n) * A * Math.pow(R, 2 / 3) * Math.sqrt(S);
+
     setResults({
       area: A.toFixed(3),
       perimeter: P.toFixed(3),
       hydraulicRadius: R.toFixed(3),
       discharge: Q.toFixed(3),
     });
-  
-    // Generate chart data
+
     const chartPoints = [];
     for (let d = 0.1; d <= y * 2; d += y / 10) {
       const area = b * d;
@@ -52,72 +46,119 @@ function ManningCalculator() {
     }
     setChartData(chartPoints);
   };
-  
-  
 
   return (
-    <div>
-      <h2>Manning Calculator</h2>
-      <form 
-        onSubmit={e => { e.preventDefault(); calculateResults(); }} 
-        className="mb-4"
-      >
-        {/* Shape selection */}
-        <div className="mb-3">
-          <label className="form-label">Channel Shape</label>
-          <select 
-            className="form-select" 
-            value={shape} 
-            onChange={e => setShape(e.target.value)}
-          >
-            <option value="rectangular">Rectangular</option>
-            <option value="trapezoidal">Trapezoidal</option>
-            <option value="circular">Circular</option>
-          </select>
-        </div>
+    <div className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-md-10 col-lg-8">
+          <div className="card shadow-lg border-0 rounded-lg">
+            <div className="card-body p-5">
+              <div className="text-center mb-4">
+                <h3 className="text-primary font-weight-bold mb-2">Manning Calculator</h3>
+                <p className="text-muted">Estimate flow for open channels using the Manning equation</p>
+              </div>
 
-        {/* Rectangular inputs: width & depth (shown if shape === rectangular) */}
-        {shape === "rectangular" && (
-          <>
-            <div className="mb-3">
-              <label className="form-label">Width (m)</label>
-              <input 
-                type="number" step="0.1" className="form-control" 
-                value={width} onChange={e => setWidth(e.target.value)} required 
-              />
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  calculateResults();
+                }}
+              >
+                <div className="form-group mb-3">
+                  <label className="font-weight-bold">Channel Shape</label>
+                  <select
+                    className="form-control form-control-lg"
+                    value={shape}
+                    onChange={(e) => setShape(e.target.value)}
+                  >
+                    <option value="rectangular">Rectangular</option>
+                    <option value="trapezoidal">Trapezoidal</option>
+                    <option value="circular">Circular</option>
+                  </select>
+                </div>
+
+                {shape === "rectangular" && (
+                  <>
+                    <div className="form-group mb-3">
+                      <label className="font-weight-bold">Width (m)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="form-control form-control-lg"
+                        value={width}
+                        onChange={(e) => setWidth(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="form-group mb-3">
+                      <label className="font-weight-bold">Depth (m)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="form-control form-control-lg"
+                        value={depth}
+                        onChange={(e) => setDepth(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="form-group mb-3">
+                  <label className="font-weight-bold">Slope (m/m)</label>
+                  <input
+                    type="number"
+                    step="0.0001"
+                    className="form-control form-control-lg"
+                    placeholder="e.g., 0.002"
+                    value={slope}
+                    onChange={(e) => setSlope(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group mb-4">
+                  <label className="font-weight-bold">Manning's n</label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    className="form-control form-control-lg"
+                    value={manningN}
+                    onChange={(e) => setManningN(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-primary btn-block btn-round btn-lg">
+                  Calculate
+                </button>
+              </form>
             </div>
-            <div className="mb-3">
-              <label className="form-label">Depth (m)</label>
-              <input 
-                type="number" step="0.1" className="form-control" 
-                value={depth} onChange={e => setDepth(e.target.value)} required 
-              />
+          </div>
+
+          {results && (
+            <div className="card mt-5 shadow">
+              <div className="card-body text-center">
+                <h5 className="text-success mb-3">Results</h5>
+                <ul className="list-unstyled">
+                  <li><strong>Area:</strong> {results.area} m²</li>
+                  <li><strong>Wetted Perimeter:</strong> {results.perimeter} m</li>
+                  <li><strong>Hydraulic Radius:</strong> {results.hydraulicRadius} m</li>
+                  <li><strong>Discharge (Q):</strong> {results.discharge} m³/s</li>
+                </ul>
+              </div>
             </div>
-          </>
-        )}
-        {/* (Similarly, add inputs for trapezoidal or circular when those shapes are selected) */}
+          )}
 
-        <div className="mb-3">
-          <label className="form-label">Slope (m/m)</label>
-          <input 
-            type="number" step="0.0001" className="form-control" placeholder="e.g., 0.002" 
-            value={slope} onChange={e => setSlope(e.target.value)} required 
-          />
+          {chartData.length > 0 && (
+            <div className="card mt-4 shadow">
+              <div className="card-body">
+                <ManningChart data={chartData} />
+              </div>
+            </div>
+          )}
         </div>
-        <div className="mb-3">
-          <label className="form-label">Manning's n</label>
-          <input 
-            type="number" step="0.001" className="form-control" 
-            value={manningN} onChange={e => setManningN(e.target.value)} required 
-          />
-        </div>
-
-        <button type="submit" className="btn btn-primary">Calculate</button>
-
-      </form>
-
-      {chartData.length > 0 && <ManningChart data={chartData} />}
-
+      </div>
     </div>
   );
 }
