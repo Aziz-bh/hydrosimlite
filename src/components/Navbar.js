@@ -22,7 +22,7 @@ function Navbar() {
                   className={`nav-link ${location.pathname === '/manning' ? 'active' : ''}`}
                   to="/manning"
                 >
-                  Manning Calculator
+                  Calculateur de Manning
                 </Link>
               </li>
               <li className="nav-item">
