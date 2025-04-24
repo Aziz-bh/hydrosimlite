@@ -26,9 +26,9 @@ function ManningCalculator() {
       return;
     }
   
-    const A = b * y; // Cross-sectional area
-    const P = b + 2 * y; // Wetted perimeter
-    const R = A / P; // Hydraulic radius
+    const A = b * y; 
+    const P = b + 2 * y; 
+    const R = A / P; 
     const Q = (1 / n) * A * Math.pow(R, 2 / 3) * Math.sqrt(S); // Discharge
   
     setResults({
